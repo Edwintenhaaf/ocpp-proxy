@@ -1,63 +1,54 @@
-name: OCPP Proxy
-version: '0.1.0'
-slug: ocpp-proxy
-description: 'OCPP 1.6 JSON WebSocket proxy for EV charger sharing'
-homeassistant_api: true
-arch:
-  - amd64
-  - armv7
-  - aarch64
-  - armhf
-startup: services
-boot: auto
-options:
-  allow_shared_charging: true
-  preferred_provider: ''
-  blocked_providers: []
-  allowed_providers: []
-  presence_sensor: ''
-  override_input_boolean: ''
-  rate_limit_seconds: 10
-  ocpp_services: []
-schema:
-  allow_shared_charging:
-    type: boolean
-  preferred_provider:
-    type: string
-  blocked_providers:
-    type: array
-    items:
-      type: string
-  allowed_providers:
-    type: array
-    items:
-      type: string
-  presence_sensor:
-    type: string
-  override_input_boolean:
-    type: string
-  rate_limit_seconds:
-    type: integer
-  ocpp_services:
-    type: array
-    items:
-      type: object
-      properties:
-        id:
-          type: string
-        url:
-          type: string
-        auth_type:
-          type: string
-          enum: ['none', 'basic', 'token']
-        username:
-          type: string
-        password:
-          type: string
-        token:
-          type: string
-        enabled:
-          type: boolean
-      required:
-        - id
-        - url
+{
+  "name": "OCPP Proxy",
+  "version": "1.0.0",
+  "slug": "ocpp_proxy",
+  "description": "A secure, lightweight OCPP proxy server to enable intelligent EV charger sharing.",
+  "arch": ["amd64", "armv7", "arm64"],
+  "startup": "application",
+  "boot": "auto",
+  "ports": {
+    "9000/tcp": 9000
+  },
+  "map": ["config:rw"],
+  "options": {
+    "ocpp_version": "1.6",
+    "auto_detect_ocpp_version": true,
+    "allow_shared_charging": true,
+    "preferred_provider": "energy_provider_1",
+    "rate_limit_seconds": 10,
+    "presence_sensor": "binary_sensor.someone_home",
+    "override_input_boolean": "input_boolean.charger_override",
+    "allowed_providers": ["provider1", "provider2"],
+    "blocked_providers": ["spammer"],
+    "ocpp_services": []
+  },
+  "schema": {
+    "ocpp_version": "string",
+    "auto_detect_ocpp_version": "boolean",
+    "allow_shared_charging": "boolean",
+    "preferred_provider": "string",
+    "rate_limit_seconds": "integer",
+    "presence_sensor": "string",
+    "override_input_boolean": "string",
+    "allowed_providers": ["string"],
+    "blocked_providers": ["string"],
+    "ocpp_services": [
+      {
+        "id": "string",
+        "url": "string",
+        "version": "string",
+        "auth_type": "string",
+        "username": "string",
+        "password": "string",
+        "token": "string",
+        "enabled": "boolean"
+      }
+    ]
+  },
+  "webui": "http://[HOST]:9000",
+  "environment": {
+    "HA_URL": "http://homeassistant.local:8123",
+    "HA_TOKEN": ""
+  },
+  "run": ["python3", "-m", "src.ocpp_proxy.main"]
+}
